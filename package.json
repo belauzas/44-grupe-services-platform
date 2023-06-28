@@ -1,0 +1,22 @@
+{
+    "name": "44-grupe-service-platform",
+    "version": "1.0.0",
+    "description": "",
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "client": "dead-server ./dist --host=localhost --port=4414",
+        "server": "nodemon ./dist",
+        "ts": "tsc --watch",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "Rimantas (https://github.com/belauzas)",
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^20.3.2",
+        "dead-server": "^1.0.9",
+        "nodemon": "^2.0.22",
+        "typescript": "^5.1.5"
+    }
+}
