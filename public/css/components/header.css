@@ -1,0 +1,38 @@
+.main-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    background-color: #fff;
+    box-shadow: 0 0 0.25rem #0003;
+    position: sticky;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+}
+.main-header .logo {
+    min-height: 2rem;
+    max-height: 2rem;
+    max-width: 10rem;
+    object-fit: contain;
+    object-position: left center;
+    text-decoration: none;
+}
+.main-header .main-nav {
+    display: flex;
+    gap: 1rem;
+}
+.main-header .link {
+    color: #03f;
+    text-decoration: none;
+}
+.main-header .link:hover {
+    text-decoration: underline;
+}
+@media (max-width: 30rem) {
+    .main-header .main-nav {
+        display: none;
+    }
+}

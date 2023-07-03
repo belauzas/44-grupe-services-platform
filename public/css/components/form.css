@@ -1,0 +1,48 @@
+.form {
+    display: grid;
+    gap: 1.5rem;
+    min-width: 20rem;
+    width: 100%;
+    max-width: 30rem;
+    padding: 2rem;
+    border: 0.1rem solid #ddd;
+    border-radius: 0.4rem;
+    box-shadow: 0 0.1rem 0.3rem #0002;
+}
+.form .form-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    width: 100%;
+}
+.form label {
+    display: flex;
+    width: 100%;
+}
+.form input {
+    width: 100%;
+    padding: 0.5em 1em;
+    font-size: 1rem;
+}
+.form .notifications {
+    width: 100%;
+    font-size: 0.9rem;
+}
+.form .info {
+    width: 100%;
+    font-style: italic;
+    color: #555;
+}
+.form .error {
+    display: none;
+    width: 100%;
+    color: #f00;
+}
+.form [data-state='error'] .error {
+    display: block;
+}
+.form [data-state='error'] input {
+    outline-color: #f00;
+    border-color: #f00;
+}

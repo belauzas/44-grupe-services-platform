@@ -1,7 +1,10 @@
 import http, { IncomingMessage, ServerResponse } from 'node:http';
 import { StringDecoder } from 'node:string_decoder';
-
 import { file } from './file.js';
+
+import { PageHome } from '../pages/PageHome.js';
+import PageRegister from '../pages/PageRegister.js';
+import Page404 from '../pages/Page404.js';
 
 export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
     const baseUrl = `http://${req.headers.host}`;
@@ -10,7 +13,7 @@ export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => 
         .replace(/^\/+|\/+$/g, '')
         .replace(/\/+/g, '/');
 
-    const textFileExtensions = ['css', 'js'];
+    const textFileExtensions = ['css', 'js', 'webmanifest', 'svg'];
     const binaryFileExtensions = ['png', 'jpg', 'ico'];
     const extension = (trimmedPath.includes('.') ? trimmedPath.split('.').at(-1) : '') as string;
 
@@ -94,22 +97,38 @@ export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => 
             res.writeHead(200, {
                 'Content-Type': MIMES.html,
             });
-            responseContent = `<!DOCTYPE html>
-                <html lang="en">
-                <head>
-                    <meta charset="UTF-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <title>Document</title>
-                    <link rel="stylesheet" href="/css/main.css">
-                    <link rel="stylesheet" href="/css/main2.css">
-                </head>
-                <body>
-                    <h1>Labas rytas, Lietuva!</h1>
-    
-                    <script src="/js/main.js" type="module" defer></script>
-                    <script src="/js/main2.js" type="module" defer></script>
-                </body>
-                </html>`;
+
+            const pages: Record<string, any> = {
+                '': PageHome,
+                'register': PageRegister,
+                '404': Page404,
+            };
+
+            const PageClass = pages[trimmedPath];
+            responseContent = new PageClass().render();
+
+            // responseContent = `<!DOCTYPE html>
+            //     <html lang="en">
+            //     <head>
+            //         <meta charset="UTF-8">
+            //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            //         <title>Document</title>
+            //             <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+            //             <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+            //             <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+            //             <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+            //             <link rel="manifest" href="/favicon/site.webmanifest">
+            //             <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#5bbad5">
+            //             <meta name="msapplication-TileColor" content="#da532c">
+            //             <meta name="theme-color" content="#ffffff">
+            //         <link rel="stylesheet" href="/css/main.css">
+            //     </head>
+            //     <body>
+            //         <h1>Labas rytas, Lietuva!</h1>
+
+            //         <script src="/js/main.js" type="module" defer></script>
+            //     </body>
+            //     </html>`;
         }
 
         res.end(responseContent);

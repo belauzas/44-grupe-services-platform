@@ -1,0 +1,15 @@
+.main-hero {
+    padding: 5rem 2rem;
+    background-color: #e8e8e8;
+}
+.main-hero .main-title {
+    font-size: clamp(3rem, 10vmin, 10rem);
+}
+
+.inner-hero {
+    padding: 3rem 2rem;
+    background-color: #e8e8e8;
+}
+.inner-hero .main-title {
+    font-size: clamp(2.5rem, 8vmin, 8rem);
+}

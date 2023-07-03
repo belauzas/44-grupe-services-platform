@@ -1,0 +1,37 @@
+.services {
+    display: grid;
+    gap: 2rem;
+    max-width: 80rem;
+}
+.services .service {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-bottom: 1rem;
+    border: 0.1rem solid #ddd;
+    box-shadow: 0 0.1rem 0.3rem #0002;
+    border-radius: 0.4rem;
+}
+.services .service-thumbnail {
+    padding: 1rem;
+    background-color: #ddd;
+}
+.services .service-title {
+    margin: 0 1rem;
+}
+.services .service-description {
+    margin: 0 1rem;
+}
+.services .service-price {
+    margin: 0 1rem;
+}
+@media (min-width: 50rem) {
+    .services {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@media (min-width: 80rem) {
+    .services {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
