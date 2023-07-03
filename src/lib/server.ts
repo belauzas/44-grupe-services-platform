@@ -98,41 +98,18 @@ export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => 
                 'Content-Type': MIMES.html,
             });
 
-            const pages: Record<string, any> = {
-                '': PageHome,
-                'register': PageRegister,
-                '404': Page404,
-            };
-
-            const PageClass = pages[trimmedPath];
+            const PageClass = pages[trimmedPath] ? pages[trimmedPath] : pages['404'];
             responseContent = new PageClass().render();
-
-            // responseContent = `<!DOCTYPE html>
-            //     <html lang="en">
-            //     <head>
-            //         <meta charset="UTF-8">
-            //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            //         <title>Document</title>
-            //             <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-            //             <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
-            //             <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
-            //             <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
-            //             <link rel="manifest" href="/favicon/site.webmanifest">
-            //             <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#5bbad5">
-            //             <meta name="msapplication-TileColor" content="#da532c">
-            //             <meta name="theme-color" content="#ffffff">
-            //         <link rel="stylesheet" href="/css/main.css">
-            //     </head>
-            //     <body>
-            //         <h1>Labas rytas, Lietuva!</h1>
-
-            //         <script src="/js/main.js" type="module" defer></script>
-            //     </body>
-            //     </html>`;
         }
 
         res.end(responseContent);
     });
+};
+
+export const pages: Record<string, any> = {
+    '': PageHome,
+    'register': PageRegister,
+    '404': Page404,
 };
 
 export const httpServer = http.createServer(serverLogic);
@@ -146,6 +123,7 @@ export const init = () => {
 export const server = {
     init,
     httpServer,
+    pages,
 };
 
 export default server;
