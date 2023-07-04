@@ -16,6 +16,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
     // Susitvarkome URL
     const baseUrl = `http://${req.headers.host}`;
     const parsedUrl = new URL(req.url ?? '', baseUrl);
+    const httpMethod = req.method?.toLowerCase() ?? 'get';
     const trimmedPath = parsedUrl.pathname
         .replace(/^\/+|\/+$/g, '')
         .replace(/\/+/g, '/');
@@ -92,11 +93,27 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
         }
 
         if (isAPI) {
-            const jsonData = buffer ? JSON.parse(buffer) : {};
-            const endpoint = trimmedPath.split('/')[1]!;
+            // GET: api/books ❌
+            // POST: api/books {...} -> books/knygos-id.json
+            // GET: api/books/[knygos-id]
+            // GET: api/books/[knygos-id]/author
+            // GET: api/books/[knygos-id]/year
+            // GET: api/books/[knygos-id]/page-count
+            // PUT: api/books/[knygos-id] {...}
+            // PUT: api/books/[knygos-id] {...}
+            // PATCH: api/books/[knygos-id]/year/2000
+            // PATCH: api/books/[knygos-id]/author/Joe
+            // DELETE: api/books/[knygos-id]
+
+            let jsonData = {};
+            try {
+                jsonData = JSON.parse(buffer);
+            } catch (error) { }
+
+            const [_, endpoint, ...restUrlParts] = trimmedPath.split('/') as [string, string, string[]];
             const apiFunction = apiEndpoints[endpoint];
             if (apiFunction) {
-                responseContent = apiFunction();
+                responseContent = await apiFunction(httpMethod, restUrlParts, jsonData);
             } else {
                 responseContent = 'TOKS API ENDPOINTAS NEEGZISTUOJA!!!';
             }
@@ -125,7 +142,7 @@ export const pages: Record<string, any> = {
 
 export const apiEndpoints: Record<string, any> = {
     'register': registerAPI,
-    'login': () => 'login API response...',
+    // 'login': () => 'login API response...',
 };
 
 const httpServer = http.createServer(serverLogic);
