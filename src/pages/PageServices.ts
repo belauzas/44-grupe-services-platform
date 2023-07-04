@@ -1,22 +1,21 @@
 import { PageTemplate } from "../lib/PageTemplate.js";
 
-class PageHome extends PageTemplate {
+export class PageServices extends PageTemplate {
     constructor() {
         super();
-        this.isHomePage = true;
+        this.pageTitle = 'Services';
     }
 
     private heroHTML() {
         return `
-            <section class="main-hero">
-                <h1 class="main-title">Welcome!</h1>
+            <section class="inner-hero">
+                <h1 class="main-title">Services!</h1>
             </section>`;
     }
 
     private servicesHTML() {
         return `
             <section class="section">
-                <h2 class="section-title">Services</h2>
                 <div class="services">
                     <article class="service">
                         <img class="service-thumbnail" src="/" alt="Service thumbnail">
@@ -54,8 +53,43 @@ class PageHome extends PageTemplate {
                         <p class="service-description"></p>
                         <p class="service-price skeleton-w-20"></p>
                     </article>
+                    <article class="service skeleton">
+                        <img class="service-thumbnail" src="/" alt="">
+                        <h3 class="service-title skeleton-w-50"></h3>
+                        <p class="service-description"></p>
+                        <p class="service-price skeleton-w-20"></p>
+                    </article>
+                    <article class="service skeleton">
+                        <img class="service-thumbnail" src="/" alt="">
+                        <h3 class="service-title skeleton-w-50"></h3>
+                        <p class="service-description"></p>
+                        <p class="service-price skeleton-w-20"></p>
+                    </article>
+                    <article class="service skeleton">
+                        <img class="service-thumbnail" src="/" alt="">
+                        <h3 class="service-title skeleton-w-50"></h3>
+                        <p class="service-description"></p>
+                        <p class="service-price skeleton-w-20"></p>
+                    </article>
+                    <article class="service skeleton">
+                        <img class="service-thumbnail" src="/" alt="">
+                        <h3 class="service-title skeleton-w-50"></h3>
+                        <p class="service-description"></p>
+                        <p class="service-price skeleton-w-20"></p>
+                    </article>
+                    <article class="service skeleton">
+                        <img class="service-thumbnail" src="/" alt="">
+                        <h3 class="service-title skeleton-w-50"></h3>
+                        <p class="service-description"></p>
+                        <p class="service-price skeleton-w-20"></p>
+                    </article>
+                    <article class="service skeleton">
+                        <img class="service-thumbnail" src="/" alt="">
+                        <h3 class="service-title skeleton-w-50"></h3>
+                        <p class="service-description"></p>
+                        <p class="service-price skeleton-w-20"></p>
+                    </article>
                 </div>
-                <a class="btn" href="/services">All services</a>
             </section>`;
     }
 
@@ -64,4 +98,4 @@ class PageHome extends PageTemplate {
     }
 }
 
-export { PageHome };
+export default PageServices;

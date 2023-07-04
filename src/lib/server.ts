@@ -3,16 +3,20 @@ import { StringDecoder } from 'node:string_decoder';
 import { file } from './file.js';
 
 import { PageHome } from '../pages/PageHome.js';
-import PageRegister from '../pages/PageRegister.js';
-import Page404 from '../pages/Page404.js';
+import { Page404 } from '../pages/Page404.js';
+import { PageRegister } from '../pages/PageRegister.js';
+import { PageServices } from '../pages/PageServices.js';
+import { PageLogin } from '../pages/PageLogin.js';
 
-export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
+const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
+    // Susitvarkome URL
     const baseUrl = `http://${req.headers.host}`;
     const parsedUrl = new URL(req.url ?? '', baseUrl);
     const trimmedPath = parsedUrl.pathname
         .replace(/^\/+|\/+$/g, '')
         .replace(/\/+/g, '/');
 
+    // Kokio resurso nori klientas?
     const textFileExtensions = ['css', 'js', 'webmanifest', 'svg'];
     const binaryFileExtensions = ['png', 'jpg', 'ico'];
     const extension = (trimmedPath.includes('.') ? trimmedPath.split('.').at(-1) : '') as string;
@@ -46,10 +50,12 @@ export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => 
     let buffer = '';
     const stringDecoder = new StringDecoder('utf-8');
 
+    // Upload? API POST request?
     req.on('data', (data) => {
         buffer += stringDecoder.write(data);
     });
 
+    // Galutinis sprendimas ir atsakymas klientui
     req.on('end', async () => {
         buffer += stringDecoder.end();
 
@@ -108,11 +114,13 @@ export const serverLogic = async (req: IncomingMessage, res: ServerResponse) => 
 
 export const pages: Record<string, any> = {
     '': PageHome,
+    'services': PageServices,
     'register': PageRegister,
+    'login': PageLogin,
     '404': Page404,
 };
 
-export const httpServer = http.createServer(serverLogic);
+const httpServer = http.createServer(serverLogic);
 
 export const init = () => {
     httpServer.listen(4415, () => {
