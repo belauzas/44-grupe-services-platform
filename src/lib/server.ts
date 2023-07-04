@@ -2,11 +2,15 @@ import http, { IncomingMessage, ServerResponse } from 'node:http';
 import { StringDecoder } from 'node:string_decoder';
 import { file } from './file.js';
 
+// PAGES
 import { PageHome } from '../pages/PageHome.js';
 import { Page404 } from '../pages/Page404.js';
 import { PageRegister } from '../pages/PageRegister.js';
 import { PageServices } from '../pages/PageServices.js';
 import { PageLogin } from '../pages/PageLogin.js';
+
+// API
+import { registerAPI } from '../api/register.js';
 
 const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
     // Susitvarkome URL
@@ -89,13 +93,12 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
 
         if (isAPI) {
             const jsonData = buffer ? JSON.parse(buffer) : {};
-
-            const [err, msg] = await file.create('users', jsonData.email + '.json', jsonData);
-
-            if (err) {
-                responseContent = msg.toString();
+            const endpoint = trimmedPath.split('/')[1]!;
+            const apiFunction = apiEndpoints[endpoint];
+            if (apiFunction) {
+                responseContent = apiFunction();
             } else {
-                responseContent = 'User created!';
+                responseContent = 'TOKS API ENDPOINTAS NEEGZISTUOJA!!!';
             }
         }
 
@@ -118,6 +121,11 @@ export const pages: Record<string, any> = {
     'register': PageRegister,
     'login': PageLogin,
     '404': Page404,
+};
+
+export const apiEndpoints: Record<string, any> = {
+    'register': registerAPI,
+    'login': () => 'login API response...',
 };
 
 const httpServer = http.createServer(serverLogic);
