@@ -8,9 +8,11 @@ import { Page404 } from '../pages/Page404.js';
 import { PageRegister } from '../pages/PageRegister.js';
 import { PageServices } from '../pages/PageServices.js';
 import { PageLogin } from '../pages/PageLogin.js';
+import { PageAccount } from '../pages/PageAccount.js';
 
 // API
 import { registerAPI } from '../api/register.js';
+import { loginAPI } from '../api/login.js';
 
 const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
     // Susitvarkome URL
@@ -93,18 +95,6 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
         }
 
         if (isAPI) {
-            // GET: api/books ❌
-            // POST: api/books {...} -> books/knygos-id.json
-            // GET: api/books/[knygos-id]
-            // GET: api/books/[knygos-id]/author
-            // GET: api/books/[knygos-id]/year
-            // GET: api/books/[knygos-id]/page-count
-            // PUT: api/books/[knygos-id] {...}
-            // PUT: api/books/[knygos-id] {...}
-            // PATCH: api/books/[knygos-id]/year/2000
-            // PATCH: api/books/[knygos-id]/author/Joe
-            // DELETE: api/books/[knygos-id]
-
             let jsonData = {};
             try {
                 jsonData = JSON.parse(buffer);
@@ -124,7 +114,17 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
                 'Content-Type': MIMES.html,
             });
 
-            const PageClass = pages[trimmedPath] ? pages[trimmedPath] : pages['404'];
+            const isLoggedIn = true;
+            let PageClass = publicPages['404'];
+
+            if (isLoggedIn && trimmedPath in protectedPages) {
+                PageClass = protectedPages[trimmedPath];
+            }
+
+            if (trimmedPath in publicPages) {
+                PageClass = publicPages[trimmedPath]
+            }
+
             responseContent = new PageClass().render();
         }
 
@@ -132,7 +132,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
     });
 };
 
-export const pages: Record<string, any> = {
+export const publicPages: Record<string, any> = {
     '': PageHome,
     'services': PageServices,
     'register': PageRegister,
@@ -140,9 +140,13 @@ export const pages: Record<string, any> = {
     '404': Page404,
 };
 
+export const protectedPages: Record<string, any> = {
+    'account': PageAccount,
+};
+
 export const apiEndpoints: Record<string, any> = {
     'register': registerAPI,
-    // 'login': () => 'login API response...',
+    'login': loginAPI,
 };
 
 const httpServer = http.createServer(serverLogic);
@@ -156,7 +160,7 @@ export const init = () => {
 export const server = {
     init,
     httpServer,
-    pages,
+    pages: publicPages,
 };
 
 export default server;
