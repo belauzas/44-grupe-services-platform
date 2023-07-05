@@ -95,6 +95,10 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
         }
 
         if (isAPI) {
+            res.writeHead(200, {
+                'Content-Type': MIMES.json,
+            });
+
             let jsonData = {};
             try {
                 jsonData = JSON.parse(buffer);
@@ -107,6 +111,8 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
             } else {
                 responseContent = 'TOKS API ENDPOINTAS NEEGZISTUOJA!!!';
             }
+
+            responseContent = JSON.stringify(responseContent);
         }
 
         if (isPage) {

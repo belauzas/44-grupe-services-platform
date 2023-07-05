@@ -35,5 +35,22 @@ api.post = async (restUrlParts: string[], jsonData: any): Promise<string> => {
         return 'Incorrect email and/or password.';
     }
 
-    return 'User session created.';
+
+    const abc = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    for (let i = 0; i < 20; i++) {
+        const index = Math.floor(Math.random() * abc.length);
+        token += abc[index];
+    }
+
+    const tokenObj = {
+        email: jsonData.email,
+        createdAt: new Date().getTime(),
+    };
+    const [tokenErr, tokenMsg] = await file.create('token', token + '.json', tokenObj);
+    if (tokenErr) {
+        return 'Server problem... Please, try again...';
+    }
+
+    return 'User session created: ' + token;
 }

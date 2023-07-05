@@ -32,16 +32,20 @@ formDOM.addEventListener('submit', async (e) => {
         return;
     }
 
-    const response = await fetch(formDOM.action, {
-        method: formDOM.method,
-        body: JSON.stringify({
-            email: emailDOM.value,
-            pass: passDOM.value,
-        }),
-    });
-    const responseData = await response.json();
+    try {
+        const response = await fetch(formDOM.action, {
+            method: formDOM.method,
+            body: JSON.stringify({
+                email: emailDOM.value,
+                pass: passDOM.value,
+            }),
+        });
+        const responseData = await response.json();
 
-    console.log(responseData);
+        console.log(responseData);
+    } catch (error) {
+        submitDOM.disabled = false;
+    }
 
     submitDOM.disabled = false;
 });
