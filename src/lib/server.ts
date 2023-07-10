@@ -13,6 +13,13 @@ import { PageAccount } from '../pages/PageAccount.js';
 // API
 import { registerAPI } from '../api/register.js';
 import { loginAPI } from '../api/login.js';
+import { cookieParser, isUserLoggedIn } from './utils.js';
+
+export type APIresponse = {
+    statusCode: number,
+    headers: Record<string, any>,
+    body: string | undefined,
+}
 
 const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
     // Susitvarkome URL
@@ -53,7 +60,8 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
         webmanifest: 'application/manifest+json',
     };
 
-    let responseContent: string | Buffer = '';
+    let responseStatusCode = 200;
+    let responseContent: string | Buffer | undefined = '';
     let buffer = '';
     const stringDecoder = new StringDecoder('utf-8');
 
@@ -73,7 +81,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
                 res.statusCode = 404;
                 responseContent = `Error: could not find file: ${trimmedPath}`;
             } else {
-                res.writeHead(200, {
+                res.writeHead(responseStatusCode, {
                     'Content-Type': MIMES[extension],
                 })
                 responseContent = msg;
@@ -87,7 +95,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
                 res.statusCode = 404;
                 responseContent = `Error: could not find file: ${trimmedPath}`;
             } else {
-                res.writeHead(200, {
+                res.writeHead(responseStatusCode, {
                     'Content-Type': MIMES[extension],
                 })
                 responseContent = msg;
@@ -95,10 +103,10 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
         }
 
         if (isAPI) {
-            res.writeHead(200, {
+            const baseHeaders = {
                 'Content-Type': MIMES.json,
-            });
-
+            };
+            let apiRes = {} as APIresponse;
             let jsonData = {};
             try {
                 jsonData = JSON.parse(buffer);
@@ -107,20 +115,29 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
             const [_, endpoint, ...restUrlParts] = trimmedPath.split('/') as [string, string, string[]];
             const apiFunction = apiEndpoints[endpoint];
             if (apiFunction) {
-                responseContent = await apiFunction(httpMethod, restUrlParts, jsonData);
+                apiRes = await apiFunction(httpMethod, restUrlParts, jsonData) as APIresponse;
             } else {
-                responseContent = 'TOKS API ENDPOINTAS NEEGZISTUOJA!!!';
+                apiRes = {
+                    statusCode: 200,
+                    headers: {},
+                    body: 'TOKS API ENDPOINTAS NEEGZISTUOJA!!!'
+                };
             }
 
-            responseContent = JSON.stringify(responseContent);
+            res.writeHead(apiRes.statusCode, {
+                ...baseHeaders,
+                ...apiRes.headers,
+            });
+            responseContent = JSON.stringify(apiRes.body);
         }
 
         if (isPage) {
-            res.writeHead(200, {
+            res.writeHead(responseStatusCode, {
                 'Content-Type': MIMES.html,
             });
 
-            const isLoggedIn = true;
+            const cookiesObj: Record<string, string> = cookieParser(req.headers.cookie ?? '');
+            const isLoggedIn = await isUserLoggedIn(cookiesObj['session-token']);
             let PageClass = publicPages['404'];
 
             if (isLoggedIn && trimmedPath in protectedPages) {
@@ -128,7 +145,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
             }
 
             if (trimmedPath in publicPages) {
-                PageClass = publicPages[trimmedPath]
+                PageClass = publicPages[trimmedPath];
             }
 
             responseContent = new PageClass().render();

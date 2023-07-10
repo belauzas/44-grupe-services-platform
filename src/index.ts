@@ -8,6 +8,9 @@ export const initialFileStructure = () => {
 export const init = () => {
     initialFileStructure();
     server.init();
+    setInterval(() => {
+        // isvalyti nebegaliojancios /token/*.json
+    }, 24 * 60 * 60 * 1000);
 }
 
 export const app = {
