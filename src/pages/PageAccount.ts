@@ -13,7 +13,7 @@ export class PageAccount extends PageTemplate {
             </section>`;
     }
 
-    private servicesHTML() {
+    private accountHTML() {
         return `
             <section class="section">
                 <p>Welcome to user dashboard/account page!</p>
@@ -21,7 +21,7 @@ export class PageAccount extends PageTemplate {
     }
 
     main(): string {
-        return this.heroHTML() + this.servicesHTML();
+        return this.heroHTML() + this.accountHTML();
     }
 }
 

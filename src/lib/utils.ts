@@ -1,4 +1,5 @@
 import { file } from './file.js';
+import { DataForHandlers } from './server.js';
 
 export function cookieParser(cookieString: string): Record<string, string> {
     const cookies = cookieString.split('; ');
@@ -10,23 +11,28 @@ export function cookieParser(cookieString: string): Record<string, string> {
     return cookiesObj;
 }
 
-export async function isUserLoggedIn(tokenString: string | undefined): boolean {
+export async function isUserLoggedIn(data: DataForHandlers, tokenString: string | undefined): Promise<boolean> {
     if (typeof tokenString !== 'string') {
         return false;
     }
 
-    const [tokenErr, tokenMsg] = await file.read('token', tokenString + '.json');
-    if (tokenErr) {
+    const tokenQueryString = `SELECT * FROM tokens WHERE token LIKE '${tokenString}';`;
+    let tokenDBresponse: any = null;
+
+    try {
+        tokenDBresponse = await data.dbConnection.query(tokenQueryString);  // [[], []]
+    } catch (error) {
         return false;
     }
 
-    const tokenObj = JSON.parse(tokenMsg);
-    const { email, createdAt } = tokenObj;
+    const tokensFromDb = tokenDBresponse[0];
+    if (tokensFromDb.length !== 1) {
+        return false;
+    }
 
+    const tokenObj = tokensFromDb[0];
+    const { createdAt } = tokenObj;
     const now = new Date().getTime();
-    if (createdAt + 3600000 < now) {
-        return false;
-    }
 
-    return true;
+    return createdAt.getTime() + 3600000 >= now;
 }

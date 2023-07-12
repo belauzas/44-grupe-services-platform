@@ -166,7 +166,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
             });
 
             const cookiesObj: Record<string, string> = cookieParser(req.headers.cookie ?? '');
-            const isLoggedIn = await isUserLoggedIn(cookiesObj['session-token']);
+            const isLoggedIn = await isUserLoggedIn(dataForHandlers, cookiesObj['session-token']);
             let PageClass = publicPages['404'];
 
             if (isLoggedIn && trimmedPath in protectedPages) {

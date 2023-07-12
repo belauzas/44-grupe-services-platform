@@ -46,8 +46,22 @@ api.post = async (data: DataForHandlers): Promise<APIresponse> => {
         };
     }
 
-    const [userErr, userMsg] = await file.read('users', payload.email + '.json');
-    if (userErr) {
+    const userQueryString = `SELECT * FROM users WHERE email LIKE '${payload.email}';`;
+    let userDBresponse: any = null;
+
+    try {
+        userDBresponse = await data.dbConnection.query(userQueryString);
+    } catch (error) {
+        console.log(error);
+        return {
+            statusCode: 500,
+            headers: {},
+            body: 'Server error.',
+        };
+    }
+
+    const usersFromDb = userDBresponse[0];
+    if (usersFromDb.length === 0) {
         return {
             statusCode: 422,
             headers: {},
@@ -55,8 +69,17 @@ api.post = async (data: DataForHandlers): Promise<APIresponse> => {
         };
     }
 
-    const userObj = JSON.parse(userMsg);
-    if (userObj.pass !== payload.pass) {
+    if (usersFromDb.length > 1) {
+        return {
+            statusCode: 500,
+            headers: {},
+            body: 'Multiple accounts detected. Will not connect any of these. Sorry!',
+        };
+    }
+
+    const userObj = usersFromDb[0];
+
+    if (userObj.password !== payload.pass) {
         return {
             statusCode: 422,
             headers: {},
@@ -71,16 +94,16 @@ api.post = async (data: DataForHandlers): Promise<APIresponse> => {
         token += abc[index];
     }
 
-    const tokenObj = {
-        email: payload.email,
-        createdAt: new Date().getTime(),
-    };
-    const [tokenErr, tokenMsg] = await file.create('token', token + '.json', tokenObj);
-    if (tokenErr) {
+    const tokenQueryString = `INSERT INTO tokens (email, token) VALUES ('${payload.email}', '${token}');`;
+
+    try {
+        await data.dbConnection.query(tokenQueryString);
+    } catch (error) {
+        console.log(error);
         return {
             statusCode: 500,
             headers: {},
-            body: 'Server problem... Please, try again...',
+            body: 'Server error.',
         };
     }
 
