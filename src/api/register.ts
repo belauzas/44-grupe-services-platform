@@ -1,23 +1,25 @@
 import { file } from "../lib/file.js";
-import { APIresponse } from "../lib/server.js";
+import { APIresponse, DataForHandlers } from "../lib/server.js";
 
-export async function registerAPI(httpMethod: string, restUrlParts: string[], jsonData: any): Promise<APIresponse> {
+export async function registerAPI(data: DataForHandlers): Promise<APIresponse> {
     const availableHttpMethods = ['post'];
-    if (availableHttpMethods.includes(httpMethod) && httpMethod in api) {
-        return await api[httpMethod]!(restUrlParts, jsonData);
+    if (availableHttpMethods.includes(data.httpMethod) && data.httpMethod in api) {
+        return await api[data.httpMethod]!(data);
     }
 
     return {
         statusCode: 405,
         headers: {},
-        body: `"${httpMethod}" HTTP method is not allowed.`,
+        body: `"${data.httpMethod}" HTTP method is not allowed.`,
     };
 }
 
 const api: Record<string, Function> = {};
 
-api.post = async (restUrlParts: string[], jsonData: any): Promise<APIresponse> => {
-    if (typeof jsonData.email !== 'string' || jsonData.email === '') {
+api.post = async (data: DataForHandlers): Promise<APIresponse> => {
+    const { payload } = data;
+
+    if (typeof payload.email !== 'string' || payload.email === '') {
         return {
             statusCode: 422,
             headers: {},
@@ -25,7 +27,7 @@ api.post = async (restUrlParts: string[], jsonData: any): Promise<APIresponse> =
         };
     }
 
-    if (typeof jsonData.username !== 'string' || jsonData.username === '') {
+    if (typeof payload.username !== 'string' || payload.username === '') {
         return {
             statusCode: 422,
             headers: {},
@@ -33,7 +35,7 @@ api.post = async (restUrlParts: string[], jsonData: any): Promise<APIresponse> =
         };
     }
 
-    if (typeof jsonData.pass !== 'string' || jsonData.pass === '') {
+    if (typeof payload.pass !== 'string' || payload.pass === '') {
         return {
             statusCode: 422,
             headers: {},
@@ -41,7 +43,7 @@ api.post = async (restUrlParts: string[], jsonData: any): Promise<APIresponse> =
         };
     }
 
-    const keys = Object.keys(jsonData);
+    const keys = Object.keys(payload);
     if (keys.length > 3) {
         return {
             statusCode: 422,
@@ -50,13 +52,21 @@ api.post = async (restUrlParts: string[], jsonData: any): Promise<APIresponse> =
         };
     }
 
-    const [userErr, userMsg] = await file.create('users', jsonData.email + '.json', jsonData);
-    if (userErr) {
-        return {
-            statusCode: 409,
-            headers: {},
-            body: 'User with this email is already registered.',
-        };
+    // const [userErr, userMsg] = await file.create('users', payload.email + '.json', payload);
+    // if (userErr) {
+    //     return {
+    //         statusCode: 409,
+    //         headers: {},
+    //         body: 'User with this email is already registered.',
+    //     };
+    // }
+
+    const queryString = `INSERT INTO users (username, email, password) VALUES ('${payload.username}', '${payload.email}', '${payload.pass}');`;
+
+    try {
+        await data.dbConnection.query(queryString);
+    } catch (error) {
+        console.log(error);
     }
 
     return {
