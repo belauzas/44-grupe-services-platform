@@ -141,7 +141,7 @@ const serverLogic = async (req: IncomingMessage, res: ServerResponse) => {
             };
             let apiRes = {} as APIresponse;
 
-            const [_, endpoint, ...restUrlParts] = trimmedPath.split('/') as [string, string, string[]];
+            const [_, endpoint] = trimmedPath.split('/') as [string, string, string[]];
             const apiFunction = apiEndpoints[endpoint];
             if (apiFunction) {
                 apiRes = await apiFunction(dataForHandlers) as APIresponse;

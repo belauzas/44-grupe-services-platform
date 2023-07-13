@@ -1,4 +1,3 @@
-import { file } from './file.js';
 import { DataForHandlers } from './server.js';
 
 export function cookieParser(cookieString: string): Record<string, string> {

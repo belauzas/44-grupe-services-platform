@@ -18,8 +18,29 @@ export async function servicesAPI(data: DataForHandlers): Promise<APIresponse> {
 const api: Record<string, Function> = {};
 
 api.post = async (data: DataForHandlers): Promise<APIresponse> => {
-    const title = 'C'.repeat(30);
-    const queryString = `INSERT INTO services (id, title, description, price, photo, isActive) VALUES (NULL, '${title}', 'DESCRIPTION', '1.23', '', '1');`;
+    const { payload } = data;
+    const { title, description, price, photo } = payload;
+
+    let isActive = '1';
+    if (payload.isActive === '0') {
+        isActive = '0';
+    }
+
+    if (typeof title !== 'string' || title.trim() === ''
+        || typeof description !== 'string' || description.trim() === ''
+        || typeof photo !== 'string' || photo.trim() === ''
+        || typeof price !== 'number' || price < 0) {
+        return {
+            statusCode: 422,
+            headers: {},
+            body: 'Required fields: title, description, price, photo.',
+        };
+    }
+
+    const queryString = `INSERT INTO services 
+                            (title, description, price, photo, isActive)
+                        VALUES 
+                            ('${title}', '${description}', '${price}', '${photo}', '${isActive}');`;
 
     try {
         await data.dbConnection.query(queryString);
